@@ -39,6 +39,11 @@ async function run() {
     });
 
     // carts collection
+    //  get items for add to cart icon
+    app.get("/carts", async (req, res) => {
+      const result = await cartsCollection.find().toArray();
+      res.send(result);
+    });
     app.post("/carts", async (req, res) => {
       const cartItem = req.body;
       const result = await cartsCollection.insertOne(cartItem);
