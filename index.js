@@ -28,6 +28,15 @@ async function run() {
     const menuCollection = client.db("BellyBiteDb").collection("menu");
     const reviewCollection = client.db("BellyBiteDb").collection("reviews");
     const cartsCollection = client.db("BellyBiteDb").collection("carts");
+    const usersCollection = client.db("BellyBiteDb").collection("users");
+
+    // users collections api's
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
     //  get all the menu data form database()
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
