@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
@@ -45,8 +46,24 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+    // middlewares for jwt (we need 3 parameter for make a middleware)
+    const verifyToken = (req, res, next) => {
+      console.log("inside verify token ", req.headers.authorization);
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: "forbidden access" });
+      }
+      const token = req.headers.authorization.split(" ")[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+          return res.status(401).send({ message: "forbidden access" });
+        }
+        req.decoded = decoded;
+        next();
+      });
+    };
+
     // load users api
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyToken, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
@@ -72,6 +89,16 @@ async function run() {
       res.send(result);
     });
 
+    // jwt related api's
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.send({ token });
+    });
+
+    //---------------------------//--------------------------//
     //  get all the menu data form database()
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
