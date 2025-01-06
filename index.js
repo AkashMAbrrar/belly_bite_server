@@ -51,6 +51,19 @@ async function run() {
       res.send(result);
     });
 
+    // make an admin related api and update partially(patch)
+    app.patch("/users/admin/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     // delete users form admin panel
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
