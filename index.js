@@ -141,6 +141,33 @@ async function run() {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
+
+    // get single data for update a menu item
+    app.get("/menu/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await menuCollection.findOne(query);
+      res.send(result);
+    });
+
+    // patch item
+    app.patch("/menu/:id", async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          name: item.name,
+          category: item.category,
+          price: item.price,
+          recipe: item.recipe,
+          image: item.image,
+        },
+      };
+      const result = await menuCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    });
+
     // add items
     app.post("/menu", verifyToken, verifyAdmin, async (req, res) => {
       const item = req.body;
